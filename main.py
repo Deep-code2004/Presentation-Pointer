@@ -7,6 +7,9 @@ cap.set(4, 480)  # Set height
 
 while True:
   success, img =cap.read()
+  
+  
+  
   cv2.imshow("Image", img)
   key = cv2.waitKey(1)
   if key == ord('q'):
