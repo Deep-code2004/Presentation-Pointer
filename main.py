@@ -1,9 +1,15 @@
 import cv2
+import os
 width = 1280
 height = 720
+folderPath = "Slides"
+
 cap = cv2.VideoCapture(0)
 cap.set(3, 640)  # Set width
 cap.set(4, 480)  # Set height
+
+pathImages = os.listdir(folderPath)
+print(pathImages)
 
 while True:
   success, img =cap.read()
