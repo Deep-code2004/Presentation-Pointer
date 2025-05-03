@@ -8,7 +8,7 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 640)  # Set width
 cap.set(4, 480)  # Set height
 
-pathImages = os.listdir(folderPath)
+pathImages = sorted(os.listdir(folderPath), key=len)
 print(pathImages)
 
 while True:
