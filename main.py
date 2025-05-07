@@ -1,5 +1,6 @@
-import cv2
+ import cv2
 import os
+from cvzone.HandTrackingModule import HandDetector
 
 # Desired dimensions for the presentation and webcam feed
 width = 1280
@@ -12,11 +13,22 @@ cap.set(3, width)  # Set webcam width
 cap.set(4, height)  # Set webcam height
 
 # Load slide images
+if not os.path.exists(folderPath):
+    print(f"Error: Folder '{folderPath}' does not exist.")
+    exit()
+
 pathImages = sorted(os.listdir(folderPath), key=len)
-print(pathImages)
+if not pathImages:
+    print("Error: No images found in the 'Slides' folder.")
+    exit()
+
+print("Loaded slides:", pathImages)
 
 imgNumber = 0
 hs, ws = int(120), int(213)  # Height and width of the small image (webcam feed)
+
+# Initialize HandDetector
+detector = HandDetector(detectionCon=0.8, maxHands=1)
 
 while True:
     success, img = cap.read()
