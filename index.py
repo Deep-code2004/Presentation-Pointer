@@ -1,8 +1,8 @@
 import cv2
-import os
+import os 
 from cvzone.HandTrackingModule import HandDetector
 
-# Desired dimensions for the presentation and webcam feed
+# Desired dimensions for the presentation and webcam feedp
 width = 1280
 height = 700
 folderPath = "Slides"
