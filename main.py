@@ -1,4 +1,4 @@
- import cv2
+import cv2
 import os
 from cvzone.HandTrackingModule import HandDetector
 
