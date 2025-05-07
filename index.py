@@ -1,4 +1,4 @@
-import cv2
+ import cv2
 import os 
 from cvzone.HandTrackingModule import HandDetector
 
@@ -42,7 +42,7 @@ while True:
     # Load the current slide image
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
-
+  
     if imgCurrent is None:
         print(f"Failed to load image: {pathFullImage}")
         break
