@@ -1,8 +1,8 @@
- import cv2
-import os 
-from cvzone.HandTrackingModule import HandDetector
+import cv2
+import os
+from cvzone.HandTrackingModule import HandDetector  # Ensure cvzone is installed
 
-# Desired dimensions for the presentation and webcam feedp
+# Desired dimensions for the presentation and webcam feed
 width = 1280
 height = 700
 folderPath = "Slides"
@@ -36,13 +36,21 @@ while True:
         print("Failed to capture image from webcam.")
         break
 
+    # Detect hands in the webcam feed
+    hands, img = detector.findHands(img)  # Draw hand landmarks on the webcam feed
+    if hands:
+        for hand in hands:
+            print(f"Hand detected: {hand['type']}")  # Print hand type (left or right)
+            print(f"Landmarks: {hand['lmList']}")  # Print landmarks
+            print(f"Bounding Box: {hand['bbox']}")  # Print bounding box
+
     # Resize the webcam feed to the desired small size
     imgSmall = cv2.resize(img, (ws, hs))
 
     # Load the current slide image
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
-  
+
     if imgCurrent is None:
         print(f"Failed to load image: {pathFullImage}")
         break
