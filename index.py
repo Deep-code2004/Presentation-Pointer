@@ -1,5 +1,5 @@
-import cv2
 import os
+import cv2
 from cvzone.HandTrackingModule import HandDetector  # Ensure cvzone is installed
 
 # Desired dimensions for the presentation and webcam feed
@@ -50,6 +50,8 @@ while True:
     # Load the current slide image
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
+    
+    
 
     if imgCurrent is None:
         print(f"Failed to load image: {pathFullImage}")
