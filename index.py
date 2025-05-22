@@ -31,8 +31,9 @@ gestureThreshold = 300  # Threshold for gesture detection
 buttonPressed =False
 buttonCounter = 0
 buttonDelay = 30
-anntations = [] #empty list
-
+annotations = [[]] #empty list
+annotationNumber = -1
+annotationStart = False
 
 detector = HandDetector(detectionCon=0.8, maxHands=1)
 
@@ -75,8 +76,16 @@ while True:
         if fingers == [0,1,1,0,0]:
             cv2.circle(imgCurrent, indexFinger, 15,(0,0,255), cv2.FILLED) 
         if fingers == [0,1,0,0,0]:
+            if annotationStart is False:
+                annotationStart = True
+                annotationNumber +=1
+                annotations.append([])
             cv2.circle(imgCurrent, indexFinger, 15,(0,0,255), cv2.FILLED) 
-            annotations.append(indexFinger)         
+            annotations[annotationNumber].append(indexFinger)         
+
+        else:    
+            annotationStart = False
+
     if buttonPressed:
        buttonCounter +=1
        if buttonCounter> buttonDelay:   
@@ -85,7 +94,9 @@ while True:
 
 
     for i in range (len(annotations)):                  
-        cv2.line(imgCurrent,annotation[i-1],annotations[i],(0,0,200),12)
+        for j in range(len(annotations[i])):
+        if j !=0:
+            cv2.line(imgCurrent,annotation[i][j-1],annotations[i][j],(0,0,200),12)
     if hands:
         for hand in hands:
             print(f"Hand detected: {hand['type']}")  # Print hand type (left or right)
