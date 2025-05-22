@@ -32,7 +32,7 @@ buttonPressed =False
 buttonCounter = 0
 buttonDelay = 30
 annotations = [[]] #empty list
-annotationNumber = -1
+annotationNumber = 0
 annotationStart = False
 
 detector = HandDetector(detectionCon=0.8, maxHands=1)
@@ -59,22 +59,30 @@ while True:
         indexFinger = xVal , yVal
         
         if cy <=gestureThreshold: #if hand is above the threshold
+            annotationStart = False
+
            if fingers == [1, 0, 0, 0, 0]: #if only the index finger is up
+               annotationStart = False
                 print("Left")
-                buttonPressed = True 
                 if imgNumber>0:
                     buttonPressed = True
+                    annotations = [[]] #empty list
+                    annotationNumber = 0
                     imgNumber -= 1
                 
             if fingers == [0, 0, 0, 0, 1]: #if only the index finger is up
+                annotationStart = False
                 print("Right")  
-                buttonPressed = True 
                 if imgNumber< len(pathImages) - 1:
                      buttonPressed = True
+                    annotations = [[]] #empty list
+                    annotationNumber = 0
                      imgNumber += 1
             
         if fingers == [0,1,1,0,0]:
             cv2.circle(imgCurrent, indexFinger, 15,(0,0,255), cv2.FILLED) 
+            annotationStart = False
+
         if fingers == [0,1,0,0,0]:
             if annotationStart is False:
                 annotationStart = True
@@ -84,6 +92,16 @@ while True:
             annotations[annotationNumber].append(indexFinger)         
 
         else:    
+            annotationStart = False
+
+        if fingers ==[0,1,0,0,1]:    
+            if annotations:
+                if annotations>= 0:
+                    annotations.pop(-1)
+                    annottationNumber -=1
+                    buttonPressed  = True
+
+        else:        
             annotationStart = False
 
     if buttonPressed:
