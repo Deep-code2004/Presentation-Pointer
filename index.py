@@ -1,7 +1,7 @@
 import os
 import cv2
 from cvzone.HandTrackingModule import HandDetector  # Ensure cvzone is installed
-
+import numpy as np
 # Desired dimensions for the presentation and webcam feed
 width = 1280
 height = 700
@@ -22,22 +22,70 @@ if not pathImages:
     print("Error: No images found in the 'Slides' folder.")
     exit()
 
-print("Loaded slides:", pathImages)
+# print("Loaded slides:", pathImages)
 
 imgNumber = 0
 hs, ws = int(120), int(213)  # Height and width of the small image (webcam feed)
-
+gestureThreshold = 300  # Threshold for gesture detection
 # Initialize HandDetector
+buttonPressed =False
+buttonCounter = 0
+buttonDelay = 30
+anntations = [] #empty list
+
+
 detector = HandDetector(detectionCon=0.8, maxHands=1)
 
 while True:
     success, img = cap.read()
+    img cv2.flip(img, 1)
     if not success:
         print("Failed to capture image from webcam.")
         break
 
     # Detect hands in the webcam feed
-    hands, img = detector.findHands(img)  # Draw hand landmarks on the webcam feed
+    hands, img = detector.findHands(img)# Draw hand landmarks on the webcam feed
+    cv2.line(img,(0, gestureThreshold),(width, gestureThreshold),(0,255,0),10)
+    if hands: 
+        hand = hands[0]
+        fingers = detector.fingersUp(hand)# Check which fingers are up
+        cx, cy = hand['center']
+        lmList = hand['lmList']
+        
+        indexFinger = lmList[8][0], lmList[8][1]
+        xVal = int(np.interp(lmList[8][0],[width//2,w],[0,width]))
+        yVal = int(np.interp(lmList[8][1],[150,height-150],[0,height]))
+        indexFinger = xVal , yVal
+        
+        if cy <=gestureThreshold: #if hand is above the threshold
+           if fingers == [1, 0, 0, 0, 0]: #if only the index finger is up
+                print("Left")
+                buttonPressed = True 
+                if imgNumber>0:
+                    buttonPressed = True
+                    imgNumber -= 1
+                
+            if fingers == [0, 0, 0, 0, 1]: #if only the index finger is up
+                print("Right")  
+                buttonPressed = True 
+                if imgNumber< len(pathImages) - 1:
+                     buttonPressed = True
+                     imgNumber += 1
+            
+        if fingers == [0,1,1,0,0]:
+            cv2.circle(imgCurrent, indexFinger, 15,(0,0,255), cv2.FILLED) 
+        if fingers == [0,1,0,0,0]:
+            cv2.circle(imgCurrent, indexFinger, 15,(0,0,255), cv2.FILLED) 
+            annotations.append(indexFinger)         
+    if buttonPressed:
+       buttonCounter +=1
+       if buttonCounter> buttonDelay:   
+            buttonCounter = 0
+            buttonPressed = False      
+
+
+    for i in range (len(annotations)):                  
+        cv2.line(imgCurrent,annotation[i-1],annotations[i],(0,0,200),12)
     if hands:
         for hand in hands:
             print(f"Hand detected: {hand['type']}")  # Print hand type (left or right)
@@ -45,8 +93,8 @@ while True:
             print(f"Bounding Box: {hand['bbox']}")  # Print bounding box
 
     # Resize the webcam feed to the desired small size
-    imgSmall = cv2.resize(img, (ws, hs))
 
+    imgSmall = cv2.resize(img, (ws, hs))
     # Load the current slide image
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
