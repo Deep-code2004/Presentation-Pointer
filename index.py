@@ -94,7 +94,7 @@ while True:
 
     # Resize the webcam feed to the desired small size
 
-    imgSmall = cv2.resize(img, (ws, hs))
+    imgSmall = cv2.resize(img, (ws, hs)) 
     # Load the current slide image
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
