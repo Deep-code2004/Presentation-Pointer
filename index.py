@@ -1,10 +1,11 @@
 import os
 import cv2
-from cvzone.HandTrackingModule import HandDetector  # Ensure cvzone is installed
+from cvzone.HandTrackingModule import HandDetector
 import numpy as np
 
-width = 1280
-height = 700
+# Set to a size that fits your laptop screen
+width = 900
+height = 600
 folderPath = "Slides"
 
 cap = cv2.VideoCapture(0)
@@ -22,7 +23,7 @@ if not pathImages:
 
 imgNumber = 0
 hs, ws = int(120), int(213)
-gestureThreshold = 300
+gestureThreshold = 200
 buttonPressed = False
 buttonCounter = 0
 buttonDelay = 30
@@ -31,6 +32,14 @@ annotationNumber = 0
 annotationStart = False
 
 detector = HandDetector(detectionCon=0.8, maxHands=1)
+
+# Create named windows and move them to the center
+cv2.namedWindow("Presentation", cv2.WINDOW_NORMAL)
+cv2.namedWindow("Webcam Feed", cv2.WINDOW_NORMAL)
+screen_width = 1366  # Change to your screen width
+screen_height = 768  # Change to your screen height
+cv2.moveWindow("Presentation", (screen_width - width) // 2, (screen_height - height) // 2)
+cv2.moveWindow("Webcam Feed", 0, 0)
 
 while True:
     success, img = cap.read()
