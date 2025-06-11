@@ -3,7 +3,6 @@ import cv2
 from cvzone.HandTrackingModule import HandDetector
 import numpy as np
 
-# Set to a size that fits your laptop screen
 width = 900
 height = 600
 folderPath = "Slides"
@@ -27,17 +26,17 @@ gestureThreshold = 200
 buttonPressed = False
 buttonCounter = 0
 buttonDelay = 30
-annotations = [[]]
-annotationNumber = 0
+
+# Each slide has its own annotations
+all_annotations = [[] for _ in pathImages]
 annotationStart = False
 
 detector = HandDetector(detectionCon=0.8, maxHands=1)
 
-# Create named windows and move them to the center
 cv2.namedWindow("Presentation", cv2.WINDOW_NORMAL)
 cv2.namedWindow("Webcam Feed", cv2.WINDOW_NORMAL)
-screen_width = 1366  # Change to your screen width
-screen_height = 768  # Change to your screen height
+screen_width = 1366
+screen_height = 768
 cv2.moveWindow("Presentation", (screen_width - width) // 2, (screen_height - height) // 2)
 cv2.moveWindow("Webcam Feed", 0, 0)
 
@@ -60,6 +59,8 @@ while True:
     hands, img = detector.findHands(img)
     cv2.line(img, (0, gestureThreshold), (width, gestureThreshold), (0, 255, 0), 10)
 
+    annotations = all_annotations[imgNumber]
+
     if hands:
         hand = hands[0]
         fingers = detector.fingersUp(hand)
@@ -79,8 +80,6 @@ while True:
                 print("Left")
                 if imgNumber > 0 and not buttonPressed:
                     buttonPressed = True
-                    annotations = [[]]
-                    annotationNumber = 0
                     imgNumber -= 1
 
             if fingers == [0, 0, 0, 0, 1]:
@@ -88,29 +87,28 @@ while True:
                 print("Right")
                 if imgNumber < len(pathImages) - 1 and not buttonPressed:
                     buttonPressed = True
-                    annotations = [[]]
-                    annotationNumber = 0
                     imgNumber += 1
 
+        # Draw pointer (index and middle finger up)
         if fingers == [0, 1, 1, 0, 0]:
             cv2.circle(imgCurrent, indexFinger, 15, (0, 0, 255), cv2.FILLED)
             annotationStart = False
 
-        if fingers == [0, 1, 0, 0, 0]:
-            if annotationStart is False:
-                annotationStart = True
-                annotationNumber += 1
-                annotations.append([])
+        # Draw annotation (only index finger up)
+        elif fingers == [0, 1, 0, 0, 0]:
             cv2.circle(imgCurrent, indexFinger, 15, (0, 0, 255), cv2.FILLED)
-            annotations[annotationNumber].append(indexFinger)
-
+            if not annotationStart:
+                annotationStart = True
+                annotations.append([indexFinger])
+            else:
+                annotations[-1].append(indexFinger)
         else:
             annotationStart = False
 
+        # Undo gesture (index and pinky up)
         if fingers == [0, 1, 0, 0, 1]:
-            if annotations and annotationNumber >= 0:
+            if annotations:
                 annotations.pop(-1)
-                annotationNumber -= 1
                 buttonPressed = True
 
     if buttonPressed:
@@ -120,9 +118,9 @@ while True:
             buttonPressed = False
 
     # Draw annotations
-    for i in range(len(annotations)):
-        for j in range(1, len(annotations[i])):
-            cv2.line(imgCurrent, annotations[i][j - 1], annotations[i][j], (0, 0, 200), 12)
+    for annotation in annotations:
+        for j in range(1, len(annotation)):
+            cv2.line(imgCurrent, annotation[j - 1], annotation[j], (0, 0, 200), 12)
 
     # Place webcam feed in the upper-right corner
     imgSmall = cv2.resize(img, (ws, hs))
@@ -140,9 +138,11 @@ while True:
     if key == ord('q'):
         break
     elif key == ord('n'):
-        imgNumber = (imgNumber + 1) % len(pathImages)
+        if imgNumber < len(pathImages) - 1:
+            imgNumber += 1
     elif key == ord('p'):
-        imgNumber = (imgNumber - 1) % len(pathImages)
+        if imgNumber > 0:
+            imgNumber -= 1
 
 cap.release()
 cv2.destroyAllWindows()
