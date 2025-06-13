@@ -3,8 +3,9 @@ import cv2
 from cvzone.HandTrackingModule import HandDetector
 import numpy as np
 
-width = 900
-height = 600
+# Medium presentation size
+width = 500
+height = 500
 folderPath = "Slides"
 
 cap = cv2.VideoCapture(0)
@@ -21,8 +22,8 @@ if not pathImages:
     exit()
 
 imgNumber = 0
-hs, ws = int(120), int(213)
-gestureThreshold = 200
+hs, ws = int(100), int(160)  # Webcam overlay size
+gestureThreshold = 350       # Lower line for gestures
 buttonPressed = False
 buttonCounter = 0
 buttonDelay = 30
@@ -33,6 +34,7 @@ annotationStart = False
 
 detector = HandDetector(detectionCon=0.8, maxHands=1)
 
+# Center the presentation window (adjust screen_width/height if needed)
 cv2.namedWindow("Presentation", cv2.WINDOW_NORMAL)
 cv2.namedWindow("Webcam Feed", cv2.WINDOW_NORMAL)
 screen_width = 1366
@@ -72,19 +74,20 @@ while True:
         yVal = int(np.interp(lmList[8][1], [150, height - 150], [0, height]))
         indexFinger = xVal, yVal
 
+        # Slide navigation gestures (above threshold line)
         if cy <= gestureThreshold:
             annotationStart = False
 
+            # Left gesture (thumb up)
             if fingers == [1, 0, 0, 0, 0]:
                 annotationStart = False
-                print("Left")
                 if imgNumber > 0 and not buttonPressed:
                     buttonPressed = True
                     imgNumber -= 1
 
+            # Right gesture (pinky up)
             if fingers == [0, 0, 0, 0, 1]:
                 annotationStart = False
-                print("Right")
                 if imgNumber < len(pathImages) - 1 and not buttonPressed:
                     buttonPressed = True
                     imgNumber += 1
