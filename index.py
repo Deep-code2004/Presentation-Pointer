@@ -4,7 +4,7 @@ from cvzone.HandTrackingModule import HandDetector
 import numpy as np
 
 # Medium presentation size
-width = 500
+width = 800
 height = 500
 folderPath = "Slides"
 
