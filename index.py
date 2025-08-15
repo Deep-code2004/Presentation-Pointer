@@ -42,6 +42,8 @@ screen_height = 768
 cv2.moveWindow("Presentation", (screen_width - width) // 2, (screen_height - height) // 2)
 cv2.moveWindow("Webcam Feed", 0, 0)
 
+prev_draw_gesture = False  # Track previous gesture state
+
 while True:
     success, img = cap.read()
     img = cv2.flip(img, 1)
@@ -96,6 +98,7 @@ while True:
         if fingers == [0, 1, 1, 0, 0]:
             cv2.circle(imgCurrent, indexFinger, 15, (0, 0, 255), cv2.FILLED)
             annotationStart = False
+            prev_draw_gesture = False
 
         # Draw annotation (only index finger up)
         elif fingers == [0, 1, 0, 0, 0]:
@@ -104,9 +107,13 @@ while True:
                 annotationStart = True
                 annotations.append([indexFinger])
             else:
-                annotations[-1].append(indexFinger)
+                # Only add if finger moved enough (to avoid duplicate points)
+                if annotations and (annotations[-1][-1] != indexFinger):
+                    annotations[-1].append(indexFinger)
+            prev_draw_gesture = True
         else:
             annotationStart = False
+            prev_draw_gesture = False
 
         # Undo gesture (index and pinky up)
         if fingers == [0, 1, 0, 0, 1]:
